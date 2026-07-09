@@ -70,7 +70,7 @@
   /* flip cards */
   .flips{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px}
   @media(min-width:620px){.flips{grid-template-columns:1fr 1fr}}
-  .flip{perspective:1200px;height:150px;cursor:pointer}
+  .flip{perspective:1200px;height:185px;cursor:pointer}
   .flip-in{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
   .flip.open .flip-in{transform:rotateY(180deg)}
   .face{position:absolute;inset:0;backface-visibility:hidden;border-radius:16px;padding:16px;
@@ -79,7 +79,7 @@
   .face.front .q{font-size:16.5px}
   .face.front .hint{margin-top:10px;font-size:11px;color:var(--dim);font-weight:600}
   .face.back{background:linear-gradient(135deg,#173a34,#14302e);transform:rotateY(180deg);
-    font-size:13.5px;line-height:1.6;color:#d9f7ec;border-color:#245}
+    font-size:13.5px;line-height:1.55;color:#d9f7ec;border-color:#245;overflow-y:auto}
   /* quiz */
   .qbox{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow)}
   .qmeta{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--sub);margin-bottom:6px}
@@ -128,6 +128,45 @@
   .pill:hover{background:var(--card2);border-color:var(--accent)}
   .pill.on{background:var(--accent);color:#042;border-color:var(--accent)}
   label.opt{display:block;margin:14px 4px 6px;font-size:13px;color:var(--sub);font-weight:800}
+  /* concept activity tabs */
+  .tabs{display:flex;gap:8px;margin:10px 0 4px;flex-wrap:wrap}
+  .tab{flex:1;min-width:100px;background:var(--card);border:1px solid var(--line);color:var(--sub);
+    border-radius:12px;padding:11px 8px;cursor:pointer;font-weight:800;font-size:13.5px;transition:.12s}
+  .tab:hover{background:var(--card2)}
+  .tab.on{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#04101f;border-color:transparent}
+  /* mastery */
+  .mastery{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin:8px 0 4px;font-size:13px;color:var(--sub);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .mastery .mstars{color:var(--gold);letter-spacing:1px;font-size:15px}
+  .mastery .mbar{flex:1;min-width:120px;height:8px;background:#0c1226;border-radius:99px;overflow:hidden}
+  .mastery .mbar>span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--good));width:0;transition:width .4s}
+  .tgrade{margin-top:8px;font-size:11px;color:var(--gold);font-weight:800}
+  .tbar{height:6px;background:#0c1226;border-radius:99px;overflow:hidden;margin-top:6px}
+  .tbar>span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--good));width:0}
+  /* flip self-check */
+  .selfcheck{display:flex;gap:8px;margin-top:10px;justify-content:center}
+  .selfcheck button{border:none;border-radius:10px;padding:7px 12px;font-weight:800;font-size:12.5px;cursor:pointer;font-family:inherit}
+  .sc-know{background:var(--good);color:#043}
+  .sc-again{background:var(--card2);color:var(--sub);border:1px solid var(--line)!important}
+  .flip.known .face.front{border-color:var(--good)}
+  .flip.known .face.front::after{content:'✅ 익힘';position:absolute;top:8px;right:10px;font-size:10px;color:var(--good);font-weight:800}
+  .face.front{position:relative}
+  /* match game */
+  .match-hud{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 14px;margin:8px 0;font-size:13.5px;font-weight:700;color:var(--sub);line-height:1.5}
+  .match-hud b{color:var(--accent)}
+  .match-board{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+  .match-col{display:flex;flex-direction:column;gap:10px}
+  .match-col .colhead{font-size:11px;color:var(--dim);font-weight:800;text-align:center;margin-bottom:-2px}
+  .mtile{background:var(--bg2);border:2px solid var(--line);border-radius:12px;padding:12px 11px;font-size:12.5px;
+    line-height:1.4;cursor:pointer;transition:border-color .12s,background .12s,opacity .2s;min-height:60px;
+    display:flex;align-items:center}
+  .mtile.term{font-weight:800;font-size:14.5px;justify-content:center;text-align:center}
+  .mtile:hover{border-color:var(--accent2)}
+  .mtile.sel{border-color:var(--accent);background:#12233c}
+  .mtile.done{border-color:var(--good);background:#123528;opacity:.5;pointer-events:none}
+  .mtile.miss{animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+  .confetti{position:fixed;top:-10px;font-size:20px;z-index:70;pointer-events:none;animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(105vh) rotate(360deg);opacity:.9}}
 </style>
 </head>
 <body>
@@ -174,7 +213,7 @@
   <!-- CONCEPT: topic list -->
   <section class="screen" id="s-concept">
     <button class="back" onclick="go('home')">← 홈으로</button>
-    <div class="sec-title">📚 개념 학습 — 주제를 골라 카드를 뒤집어 보세요</div>
+    <div class="sec-title">📚 개념 학습 — 주제를 골라 카드로 익히고 🧩 짝맞추기로 확인!</div>
     <div class="grid" id="conceptGrid"></div>
   </section>
 
@@ -182,10 +221,28 @@
   <section class="screen" id="s-cards">
     <button class="back" onclick="go('concept')">← 주제 목록</button>
     <div class="sec-title" id="cardsTitle"></div>
-    <div class="flips" id="flips"></div>
-    <div class="row" style="margin-top:16px">
-      <button class="btn btn-primary" id="cardsQuizBtn" style="flex:1">✏️ 이 주제 문제 풀기</button>
+    <div class="tabs">
+      <button class="tab on" onclick="switchTab('card',this)">🃏 카드 넘기기</button>
+      <button class="tab" onclick="switchTab('match',this)">🧩 짝 맞추기</button>
+      <button class="tab" onclick="switchTab('quiz',this)">✏️ 문제 풀기</button>
     </div>
+    <div class="mastery" id="masteryLine"></div>
+    <div class="flips" id="flips"></div>
+  </section>
+
+  <!-- CONCEPT: match game -->
+  <section class="screen" id="s-match">
+    <button class="back" onclick="openCards(curTopic)">← 카드로</button>
+    <div class="sec-title" id="matchTitle"></div>
+    <div class="match-hud" id="matchMsg">왼쪽 <b>용어</b>를 고른 뒤 오른쪽 <b>설명</b>을 누르세요!</div>
+    <div class="match-hud" style="display:flex;gap:16px;justify-content:center">
+      ⏱️ <b id="matchTime">0</b>초 &nbsp; ✅ <b id="matchDone">0</b>/<b id="matchTotal">0</b> 짝
+    </div>
+    <div class="match-board">
+      <div class="match-col"><div class="colhead">용어</div><div id="matchLeft" style="display:flex;flex-direction:column;gap:10px"></div></div>
+      <div class="match-col"><div class="colhead">설명</div><div id="matchRight" style="display:flex;flex-direction:column;gap:10px"></div></div>
+    </div>
+    <button class="btn btn-primary" id="matchAgain" onclick="startMatch(curTopic)" style="display:none;width:100%;margin-top:16px">🔄 새로 섞어서 다시!</button>
   </section>
 
   <!-- QUIZ SETUP -->
@@ -253,8 +310,8 @@
 /* ================= 상태 ================= */
 const LS='td3d_v1';
 let ST=load();
-function load(){try{return JSON.parse(localStorage.getItem(LS))||seed()}catch(e){return seed()}}
-function seed(){return{score:0,seen:{},ok:{},wrong:[]}}
+function load(){try{const s=JSON.parse(localStorage.getItem(LS))||seed();if(!s.known)s.known={};return s}catch(e){return seed()}}
+function seed(){return{score:0,seen:{},ok:{},wrong:[],known:{}}}
 function save(){localStorage.setItem(LS,JSON.stringify(ST))}
 QUESTIONS.forEach((q,i)=>q.id=i);
 const TOPMAP={};TOPICS.forEach(t=>TOPMAP[t.key]=t);
@@ -278,7 +335,7 @@ function sFlip(){beep(420,.06,'sine',.08)}
 function sWin(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,.18,'triangle',.14),i*110))}
 
 /* ================= 화면 전환 ================= */
-const screens=['home','concept','cards','setup','quiz','result','wrong'];
+const screens=['home','concept','cards','match','setup','quiz','result','wrong'];
 function go(name){
   screens.forEach(s=>document.getElementById('s-'+s).classList.toggle('on',s===name));
   window.scrollTo(0,0);
@@ -305,38 +362,163 @@ function renderHome(){
 }
 
 /* ================= 개념: 주제 목록 ================= */
+function knownCount(key){return Object.keys((ST.known&&ST.known[key])||{}).length}
+function masteryStars(done,total){
+  if(!total)return '☆☆☆';
+  const p=done/total;
+  if(p>=1)return '★★★';
+  if(p>=0.66)return '★★☆';
+  if(p>=0.33)return '★☆☆';
+  return '☆☆☆';
+}
 function renderConceptGrid(){
   const g=document.getElementById('conceptGrid');
   g.innerHTML='';
   TOPICS.forEach(t=>{
-    const n=QUESTIONS.filter(q=>q.t===t.key).length;
+    const total=(CONCEPTS[t.key]||[]).length;
+    const done=Math.min(knownCount(t.key),total);
+    const pct=total?Math.round(done/total*100):0;
     const d=document.createElement('div');
     d.className='tcard';
     d.onclick=()=>openCards(t.key);
-    d.innerHTML=`<div class="ic">${t.icon}</div><h4>${t.name}</h4><small>${t.desc}</small><div class="cnt">개념 ${(CONCEPTS[t.key]||[]).length} · 문제 ${n}</div>`;
+    d.innerHTML=`<div class="ic">${t.icon}</div><h4>${t.name}</h4><small>${t.desc}</small>
+      <div class="tgrade">${masteryStars(done,total)} 익힘 ${done}/${total}</div>
+      <div class="tbar"><span style="width:${pct}%"></span></div>`;
     g.appendChild(d);
   });
 }
 
 /* ================= 개념: 카드 ================= */
 let curTopic=null;
+function switchTab(which,el){
+  document.querySelectorAll('#s-cards .tab').forEach(t=>t.classList.remove('on'));
+  if(el)el.classList.add('on');
+  if(which==='match'){startMatch(curTopic);return}
+  if(which==='quiz'){startQuiz(curTopic,999);return}
+}
+function renderMastery(){
+  const key=curTopic, total=(CONCEPTS[key]||[]).length, done=Math.min(knownCount(key),total);
+  const pct=total?Math.round(done/total*100):0;
+  document.getElementById('masteryLine').innerHTML=
+    `<span class="mstars">${masteryStars(done,total)}</span>
+     <span>익힘 <b style="color:var(--txt)">${done}/${total}</b></span>
+     <span class="mbar"><span style="width:${pct}%"></span></span>
+     ${pct>=100?'<span style="color:var(--good);font-weight:800">완료! 🎉</span>':''}`;
+}
+function toggleKnown(key,idx,card){
+  ST.known[key]=ST.known[key]||{};
+  if(ST.known[key][idx]){delete ST.known[key][idx];card.classList.remove('known')}
+  else{ST.known[key][idx]=1;card.classList.add('known');sOK()}
+  save();renderMastery();
+  // 전부 익히면 축하
+  const total=(CONCEPTS[key]||[]).length;
+  if(knownCount(key)>=total && total>0){confetti();sWin();toast('🎉 이 주제를 다 익혔어요!')}
+}
 function openCards(key){
   curTopic=key;
   const t=TOPMAP[key];
   document.getElementById('cardsTitle').textContent=`${t.icon} ${t.name}`;
+  document.querySelectorAll('#s-cards .tab').forEach((tb,i)=>tb.classList.toggle('on',i===0));
+  renderMastery();
   const wrap=document.getElementById('flips');
   wrap.innerHTML='';
-  (CONCEPTS[key]||[]).forEach(([q,a])=>{
+  (CONCEPTS[key]||[]).forEach(([q,a],idx)=>{
     const f=document.createElement('div');
-    f.className='flip';
+    f.className='flip'+((ST.known[key]&&ST.known[key][idx])?' known':'');
     f.innerHTML=`<div class="flip-in">
       <div class="face front"><div class="q">${q}</div><div class="hint">👆 눌러서 정답 보기</div></div>
-      <div class="face back">${a}</div></div>`;
-    f.onclick=()=>{f.classList.toggle('open');sFlip()};
+      <div class="face back"><div>${a}</div>
+        <div class="selfcheck">
+          <button class="sc-know">✅ 알아요</button>
+          <button class="sc-again">🔄 다시</button>
+        </div></div></div>`;
+    // 카드 뒤집기 (버튼 클릭은 제외)
+    f.onclick=(e)=>{if(e.target.closest('.selfcheck'))return;f.classList.toggle('open');sFlip()};
+    f.querySelector('.sc-know').onclick=(e)=>{e.stopPropagation();if(!(ST.known[key]&&ST.known[key][idx]))toggleKnown(key,idx,f);f.classList.remove('open');};
+    f.querySelector('.sc-again').onclick=(e)=>{e.stopPropagation();if(ST.known[key]&&ST.known[key][idx])toggleKnown(key,idx,f);f.classList.remove('open');};
     wrap.appendChild(f);
   });
-  document.getElementById('cardsQuizBtn').onclick=()=>startQuiz(key,999);
   go('cards');
+}
+
+/* ================= 개념: 짝 맞추기 게임 ================= */
+let match={pairs:[],selLeft:null,done:0,elapsed:0,timer:null};
+function startMatch(key){
+  curTopic=key;
+  const t=TOPMAP[key];
+  document.getElementById('matchTitle').textContent=`🧩 ${t.name} — 짝 맞추기`;
+  const all=(CONCEPTS[key]||[]).map(([q,a],i)=>({idx:i,q,a}));
+  const pick=shuffle(all).slice(0,Math.min(5,all.length));
+  clearInterval(match.timer);
+  match={pairs:pick,selLeft:null,done:0,elapsed:0,timer:null};
+  const L=document.getElementById('matchLeft'), R=document.getElementById('matchRight');
+  L.innerHTML='';R.innerHTML='';
+  pick.forEach(p=>{
+    const l=document.createElement('div');
+    l.className='mtile term';l.dataset.idx=p.idx;l.textContent=p.q;
+    l.onclick=()=>selLeft(p.idx,l);
+    L.appendChild(l);
+  });
+  shuffle(pick.slice()).forEach(p=>{
+    const r=document.createElement('div');
+    r.className='mtile def';r.dataset.idx=p.idx;r.textContent=p.a;
+    r.onclick=()=>selRight(p.idx,r);
+    R.appendChild(r);
+  });
+  document.getElementById('matchTotal').textContent=pick.length;
+  document.getElementById('matchDone').textContent=0;
+  document.getElementById('matchTime').textContent=0;
+  document.getElementById('matchMsg').innerHTML='왼쪽 <b>용어</b>를 고른 뒤 오른쪽 <b>설명</b>을 누르세요!';
+  document.getElementById('matchAgain').style.display='none';
+  match.timer=setInterval(()=>{match.elapsed++;document.getElementById('matchTime').textContent=match.elapsed},1000);
+  go('match');
+}
+function selLeft(idx,el){
+  if(el.classList.contains('done'))return;
+  document.querySelectorAll('#matchLeft .mtile').forEach(x=>x.classList.remove('sel'));
+  el.classList.add('sel');match.selLeft=idx;sFlip();
+}
+function selRight(idx,el){
+  if(el.classList.contains('done'))return;
+  if(match.selLeft===null){document.getElementById('matchMsg').innerHTML='먼저 왼쪽 <b>용어</b>를 골라요 👈';return}
+  if(idx===match.selLeft){
+    const l=document.querySelector('#matchLeft .mtile[data-idx="'+idx+'"]');
+    if(l){l.classList.add('done');l.classList.remove('sel')}
+    el.classList.add('done');
+    match.selLeft=null;match.done++;
+    document.getElementById('matchDone').textContent=match.done;
+    ST.score+=5;save();hud();sOK();
+    document.getElementById('matchMsg').innerHTML='좋아요! 짝을 맞췄어요 ✅';
+    if(match.done>=match.pairs.length){
+      clearInterval(match.timer);
+      // 맞춘 개념을 익힘으로 기록
+      ST.known[curTopic]=ST.known[curTopic]||{};
+      match.pairs.forEach(p=>ST.known[curTopic][p.idx]=1);
+      save();
+      document.getElementById('matchMsg').innerHTML=`🎉 <b>클리어!</b> ${match.elapsed}초 만에 ${match.pairs.length}개 짝을 모두 맞췄어요!`;
+      document.getElementById('matchAgain').style.display='';
+      flash('#123528');confetti();sWin();
+      const total=(CONCEPTS[curTopic]||[]).length;
+      if(knownCount(curTopic)>=total)toast('🏅 이 주제 개념을 모두 익혔어요!');
+    }
+  }else{
+    el.classList.add('miss');setTimeout(()=>el.classList.remove('miss'),350);
+    sBad();document.getElementById('matchMsg').innerHTML='앗, 다른 짝이에요 🤔 다시 골라봐요!';
+    document.querySelectorAll('#matchLeft .mtile').forEach(x=>x.classList.remove('sel'));
+    match.selLeft=null;
+  }
+}
+function confetti(){
+  const em=['🎉','🎊','⭐','🖨️','✨','🏅'];
+  for(let i=0;i<18;i++){
+    const s=document.createElement('div');
+    s.className='confetti';s.textContent=em[i%em.length];
+    s.style.left=Math.random()*100+'vw';
+    s.style.animationDuration=(1.6+Math.random()*1.4)+'s';
+    s.style.animationDelay=(Math.random()*.4)+'s';
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(),3400);
+  }
 }
 
 /* ================= 기출: 설정 ================= */
