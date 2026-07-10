@@ -167,6 +167,17 @@
   @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
   .confetti{position:fixed;top:-10px;font-size:20px;z-index:70;pointer-events:none;animation:fall linear forwards}
   @keyframes fall{to{transform:translateY(105vh) rotate(360deg);opacity:.9}}
+  /* login / profile */
+  .field{margin:14px 2px 0}
+  .field label{display:block;font-size:13px;color:var(--sub);font-weight:800;margin:0 0 6px}
+  .field input{width:100%;background:var(--bg2);border:2px solid var(--line);border-radius:12px;
+    padding:14px;font-size:16px;color:var(--txt);font-family:inherit;outline:none}
+  .field input:focus{border-color:var(--accent)}
+  .who{margin-left:auto;display:flex;gap:8px;align-items:center}
+  .who .chip{cursor:pointer}
+  .sync-dot{width:8px;height:8px;border-radius:50%;background:var(--dim);display:inline-block}
+  .sync-dot.on{background:var(--good)}
+  .sync-dot.off{background:var(--dim)}
 </style>
 </head>
 <body>
@@ -175,10 +186,24 @@
   <header>
     <div class="logo">🖨️ 3D프린터 마스터<small>운용기능사 필기 학습게임</small></div>
     <div class="hud">
+      <div class="chip" id="whoChip" style="display:none;cursor:pointer" onclick="go('login')" title="프로필 변경"><span class="sync-dot" id="syncDot"></span> <b id="whoName">-</b></div>
       <div class="chip">⭐ <b id="hudScore">0</b></div>
       <div class="chip combo" id="hudComboChip" style="display:none">🔥 <span id="hudCombo">0</span> 콤보</div>
     </div>
   </header>
+
+  <!-- LOGIN / PROFILE -->
+  <section class="screen" id="s-login">
+    <div class="hero">
+      <h1>👋 시작하기 전에</h1>
+      <p>이름과 반을 입력하면 진행상황이 저장돼요.<br><b style="color:#fff">다른 기기(폰·PC)에서도 같은 반·이름</b>을 입력하면 이어서 할 수 있어요.</p>
+    </div>
+    <div class="field"><label>반</label><input id="inCls" placeholder="예: 3-2" autocomplete="off"></div>
+    <div class="field"><label>이름</label><input id="inName" placeholder="예: 홍길동" autocomplete="off"></div>
+    <div style="margin-top:20px"><button class="btn btn-primary" style="width:100%" onclick="doLogin()">🚀 시작 / 이어하기</button></div>
+    <div class="subbtns" style="margin-top:12px"><button class="btn btn-ghost" onclick="skipLogin()">이름 없이 둘러보기</button></div>
+    <div class="foot" id="loginInfo"></div>
+  </section>
 
   <!-- HOME -->
   <section class="screen on" id="s-home">
@@ -302,6 +327,7 @@
 </div>
 <div class="toast" id="toast"></div>
 
+<script src="config.js"></script>
 <script src="data.js"></script>
 <script src="data2.js"></script>
 <script src="data3.js"></script>
@@ -310,9 +336,9 @@
 /* ================= 상태 ================= */
 const LS='td3d_v1';
 let ST=load();
-function load(){try{const s=JSON.parse(localStorage.getItem(LS))||seed();if(!s.known)s.known={};return s}catch(e){return seed()}}
-function seed(){return{score:0,seen:{},ok:{},wrong:[],known:{}}}
-function save(){localStorage.setItem(LS,JSON.stringify(ST))}
+function load(){try{const s=JSON.parse(localStorage.getItem(LS))||seed();if(!s.known)s.known={};if(!('name'in s))s.name='';if(!('cls'in s))s.cls='';return s}catch(e){return seed()}}
+function seed(){return{score:0,seen:{},ok:{},wrong:[],known:{},name:'',cls:''}}
+function save(){localStorage.setItem(LS,JSON.stringify(ST));scheduleSync()}
 QUESTIONS.forEach((q,i)=>q.id=i);
 const TOPMAP={};TOPICS.forEach(t=>TOPMAP[t.key]=t);
 
@@ -335,7 +361,7 @@ function sFlip(){beep(420,.06,'sine',.08)}
 function sWin(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,.18,'triangle',.14),i*110))}
 
 /* ================= 화면 전환 ================= */
-const screens=['home','concept','cards','match','setup','quiz','result','wrong'];
+const screens=['login','home','concept','cards','match','setup','quiz','result','wrong'];
 function go(name){
   screens.forEach(s=>document.getElementById('s-'+s).classList.toggle('on',s===name));
   window.scrollTo(0,0);
@@ -343,10 +369,91 @@ function go(name){
   if(name==='concept')renderConceptGrid();
   if(name==='setup')renderSetup();
   if(name==='wrong')renderWrong();
+  if(name==='login'){
+    document.getElementById('inCls').value=ST.cls||'';
+    document.getElementById('inName').value=ST.name||'';
+    document.getElementById('loginInfo').textContent=SYNC_URL?'':'※ 지금은 이 기기에만 저장돼요(클라우드 미연결).';
+  }
 }
 function hud(){
   document.getElementById('hudScore').textContent=ST.score;
+  const chip=document.getElementById('whoChip');
+  if(ST.name){
+    chip.style.display='flex';
+    document.getElementById('whoName').textContent=(ST.cls?ST.cls+' ':'')+ST.name;
+    const dot=document.getElementById('syncDot');
+    dot.className='sync-dot '+(SYNC_URL?'on':'off');
+    dot.parentElement.title=SYNC_URL?'클라우드 저장 켜짐 · 눌러서 프로필 변경':'이 기기에만 저장 · 눌러서 프로필 변경';
+  }else chip.style.display='none';
 }
+
+/* ================= 진행상황 동기화 (Google 시트) ================= */
+function progressSummary(){
+  let known=0; for(const k in ST.known) known+=Object.keys(ST.known[k]).length;
+  const seen=Object.keys(ST.seen).length;
+  return {
+    cls:ST.cls||'', name:ST.name||'',
+    score:ST.score, known:known, seen:seen,
+    ok:Object.keys(ST.ok).length, wrong:ST.wrong.length,
+    pct: QUESTIONS.length?Math.round(seen/QUESTIONS.length*100):0,
+    state: JSON.stringify({score:ST.score,seen:ST.seen,ok:ST.ok,wrong:ST.wrong,known:ST.known,name:ST.name,cls:ST.cls})
+  };
+}
+let syncTimer=null;
+function scheduleSync(){
+  if(!SYNC_URL||!ST.name)return;
+  clearTimeout(syncTimer);
+  syncTimer=setTimeout(syncUp,1200);
+}
+function syncUp(){
+  if(!SYNC_URL||!ST.name)return;
+  try{
+    fetch(SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify(progressSummary())});
+  }catch(e){}
+}
+// JSONP GET (다른 기기 이어하기)
+function syncDown(cls,name,done){
+  if(!SYNC_URL){done(false);return}
+  const cb='__sd'+Date.now();
+  const s=document.createElement('script');
+  let finished=false;
+  const cleanup=()=>{try{delete window[cb]}catch(e){window[cb]=null}; if(s.parentNode)s.parentNode.removeChild(s)};
+  const to=setTimeout(()=>{if(!finished){finished=true;cleanup();done(false)}},7000);
+  window[cb]=(res)=>{
+    if(finished)return; finished=true; clearTimeout(to); cleanup();
+    try{
+      if(res&&res.found&&res.state){ mergeState(JSON.parse(res.state)); done(true); }
+      else done(false);
+    }catch(e){done(false)}
+  };
+  s.onerror=()=>{if(!finished){finished=true;clearTimeout(to);cleanup();done(false)}};
+  s.src=SYNC_URL+'?action=get&cls='+encodeURIComponent(cls)+'&name='+encodeURIComponent(name)+'&callback='+cb;
+  document.body.appendChild(s);
+}
+// 서버 상태를 로컬과 합침(손실 방지: 점수는 max, 나머지는 합집합)
+function mergeState(srv){
+  if(!srv)return;
+  ST.score=Math.max(ST.score||0, srv.score||0);
+  Object.assign(ST.seen, srv.seen||{});
+  Object.assign(ST.ok, srv.ok||{});
+  for(const k in (srv.known||{})){ST.known[k]=ST.known[k]||{};Object.assign(ST.known[k],srv.known[k])}
+  const w=new Set(ST.wrong); (srv.wrong||[]).forEach(x=>w.add(x)); ST.wrong=[...w];
+  localStorage.setItem(LS,JSON.stringify(ST));
+}
+
+/* ================= 로그인 / 프로필 ================= */
+function doLogin(){
+  const cls=document.getElementById('inCls').value.trim();
+  const name=document.getElementById('inName').value.trim();
+  if(!name){document.getElementById('loginInfo').textContent='이름을 입력해 주세요.';return}
+  ST.name=name; ST.cls=cls;
+  document.getElementById('loginInfo').textContent=SYNC_URL?'저장된 기록을 불러오는 중…':'';
+  const enter=()=>{localStorage.setItem(LS,JSON.stringify(ST));hud();syncUp();go('home');toast('환영해요, '+name+'님! 👋')};
+  if(SYNC_URL) syncDown(cls,name,()=>enter());
+  else enter();
+}
+function skipLogin(){ST.name='';ST.cls='';save();go('home');}
 
 /* ================= 홈 ================= */
 function renderHome(){
@@ -703,12 +810,15 @@ function toast(msg){
   clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),1600);
 }
 function resetAll(){
-  if(confirm('점수·학습기록·오답노트를 모두 초기화할까요?')){
-    ST=seed();save();renderHome();toast('초기화되었습니다');
+  if(confirm('점수·학습기록·오답노트를 모두 초기화할까요? (이름·반은 유지됩니다)')){
+    const nm=ST.name, cl=ST.cls;
+    ST=seed(); ST.name=nm; ST.cls=cl; save();renderHome();hud();toast('초기화되었습니다');
   }
 }
 /* init */
-renderHome();hud();
+if(ST.name){renderHome();hud();go('home')}
+else{go('login')}
+hud();
 </script>
 </body>
 </html>
