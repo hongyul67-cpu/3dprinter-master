@@ -668,7 +668,7 @@ function startQuiz(scope,count,pool){
   let base= pool || (scope==='all'?QUESTIONS:QUESTIONS.filter(q=>q.t===scope));
   let list=shuffle(base);
   if(count && count<list.length) list=list.slice(0,count);
-  quiz={list,i:0,combo:0,correct:0,answered:false,sel:-1,fromWrong:!!pool,startTime:Date.now(),wrongNums:[]};
+  quiz={list,i:0,combo:0,correct:0,answered:false,sel:-1,fromWrong:!!pool,startTime:Date.now(),wrongNums:[],scopeKey:(pool?'wrong':scope)};
   document.getElementById('qTot').textContent=list.length;
   document.getElementById('hudComboChip').style.display='flex';
   go('quiz');renderQuestion();
@@ -773,14 +773,19 @@ function finishQuiz(){
   document.getElementById('rWrongBtn').style.display=ST.wrong.length?'':'none';
   document.getElementById('hudComboChip').style.display='none';
   // 제출용 결과 저장 + 버튼 표시(교사 제출 링크가 설정된 경우에만)
+  const sk=quiz.scopeKey;
+  const scopeName = (sk==='all')?'전체' : (sk==='wrong')?'오답' : (TOPMAP[sk]?TOPMAP[sk].name:'전체');
   lastResult={score:pct, correct:c, total:n, wrong:(quiz.wrongNums||[]).slice(),
-    durationSec:Math.round((Date.now()-(quiz.startTime||Date.now()))/1000)};
+    durationSec:Math.round((Date.now()-(quiz.startTime||Date.now()))/1000), scope:scopeName};
   const hasRC=!!(window.ResultCollector&&ResultCollector.config&&ResultCollector.config.endpoint);
-  document.getElementById('rSubmitBtn').style.display=hasRC?'':'none';
+  const sb=document.getElementById('rSubmitBtn');
+  sb.style.display=hasRC?'':'none';
+  sb.textContent=`📤 [${scopeName}] 결과 제출`;
   sWin();
   go('result');
 }
 let lastResult=null;
+const RC_TOOL_BASE='3D프린터 마스터';
 function submitResult(){
   if(!(window.ResultCollector&&ResultCollector.config&&ResultCollector.config.endpoint)){
     toast('제출용 링크가 설정되어 있지 않아요');return;
@@ -788,6 +793,9 @@ function submitResult(){
   // 로그인한 이름을 제출 모달에 미리 채워줌(학생이 바꿀 수 있음)
   try{const k='rc_student';const cur=JSON.parse(localStorage.getItem(k)||'{}');
     if(ST.name&&!cur.name){cur.name=ST.name;localStorage.setItem(k,JSON.stringify(cur))}}catch(e){}
+  // 항목(주제)별로 교사 시트 탭이 나뉘도록 tool 이름에 항목명을 붙임
+  const sc=(lastResult&&lastResult.scope)?lastResult.scope:'전체';
+  ResultCollector.config.tool = RC_TOOL_BASE+' · '+sc;
   ResultCollector.open(lastResult||{});
 }
 
