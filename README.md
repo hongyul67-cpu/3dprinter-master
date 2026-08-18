@@ -12,7 +12,7 @@
 
 ## 결과수집 (교사용)
 학생 결과를 교사 구글시트로 모을 수 있습니다.
-- `AppsScript_코드.gs` — 구글 시트 수집용 Apps Script
+- `AppsScript_코드.gs` — (사용 안 함) 코드는 https://hongyul67-cpu.github.io/links/guide.html 에서 복사하세요
 - `교사용_구글시트_설치법.txt` — 설치 안내 (약 5분)
 - `config.js` — 결과수집 주소 등 설정
 
