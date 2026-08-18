@@ -116,6 +116,17 @@
   .result .grade{font-size:40px;font-weight:900;letter-spacing:1px}
   .result .score{font-size:20px;color:var(--sub);margin:6px 0 2px}
   .result .msg{color:var(--sub);font-size:14px;margin:10px 0 18px;line-height:1.6}
+  /* 종합시험 카드 · 시험 뒤 오답노트 */
+  .mode.exam{grid-column:1/-1;background:linear-gradient(135deg,#2a2340,#1c2038);border-color:#4b3f7a}
+  .mode.exam:hover{border-color:var(--gold)}
+  #examReview{margin-top:16px}
+  .ansline{background:var(--bg2);border:1px solid var(--line);border-radius:10px;
+    padding:9px 12px;font-size:14px;margin-top:6px;color:var(--sub)}
+  .ansline b{color:var(--txt)}
+  .ansline.bad{border-color:var(--bad)} .ansline.bad b{color:var(--bad)}
+  .ansline.good{border-color:var(--good)} .ansline.good b{color:var(--good)}
+  .examnote{background:#2a2135;border:1px solid #574372;border-radius:12px;padding:12px 14px;
+    font-size:13.5px;line-height:1.6;color:#e6dcff;margin-top:12px}
   .stars{font-size:26px;letter-spacing:4px;margin:8px 0}
   .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);
     background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 18px;font-weight:800;
@@ -187,7 +198,7 @@
     <div class="logo">🖨️ 3D프린터 마스터<small>운용기능사 필기 학습게임</small></div>
     <div class="hud">
       <div class="chip" id="whoChip" style="display:none;cursor:pointer" onclick="go('login')" title="프로필 변경"><span class="sync-dot" id="syncDot"></span> <b id="whoName">-</b></div>
-      <div class="chip">⭐ <b id="hudScore">0</b></div>
+      <div class="chip" id="hudScoreChip">⭐ <b id="hudScore">0</b></div>
       <div class="chip combo" id="hudComboChip" style="display:none">🔥 <span id="hudCombo">0</span> 콤보</div>
     </div>
   </header>
@@ -209,7 +220,7 @@
   <section class="screen on" id="s-home">
     <div class="hero">
       <h1>3D프린터운용기능사 필기, 게임으로 정복! 🎮</h1>
-      <p>처음 배우는 학생도 OK. <b style="color:#fff">개념 학습</b>으로 익히고 → <b style="color:#fff">기출 도전</b>으로 실전 문제를 풀어요.<br>틀린 문제는 자동으로 <b style="color:#fff">오답노트</b>에 모입니다.</p>
+      <p>처음 배우는 학생도 OK. <b style="color:#fff">개념 학습</b>으로 익히고 → <b style="color:#fff">연습 문제</b>로 다진 뒤 → <b style="color:#fff">종합시험</b>으로 실력을 확인해요.<br>틀린 문제는 자동으로 <b style="color:#fff">오답노트</b>에 모입니다.</p>
     </div>
     <div class="modes">
       <div class="mode" onclick="go('concept')">
@@ -217,8 +228,12 @@
         <p>주제별 카드를 뒤집으며 핵심 개념을 익혀요. 바로 문제도 풀 수 있어요.</p>
       </div>
       <div class="mode" onclick="go('setup')">
-        <div class="ic">🏆</div><h3>기출 도전</h3>
-        <p>주제별 / 전체 랜덤 모의고사. 점수·콤보·등급으로 실력 확인!</p>
+        <div class="ic">🏆</div><h3>연습 문제</h3>
+        <p>주제별 / 전체 랜덤으로 풀어요. 제출하면 <b>바로</b> 정답·해설을 보여줘요.</p>
+      </div>
+      <div class="mode exam" onclick="go('exam')">
+        <div class="ic">🧪</div><h3>종합시험 (20문항)</h3>
+        <p>실전처럼 20문항. 푸는 동안에는 정답·해설·점수를 알려주지 않고, 끝나면 <b>오답노트</b>와 함께 채점해 줘요.</p>
       </div>
     </div>
     <div class="subbtns">
@@ -273,7 +288,7 @@
   <!-- QUIZ SETUP -->
   <section class="screen" id="s-setup">
     <button class="back" onclick="go('home')">← 홈으로</button>
-    <div class="sec-title">🏆 기출 도전 — 범위와 문항 수를 정하세요</div>
+    <div class="sec-title">🏆 연습 문제 — 범위와 문항 수를 정하세요</div>
     <label class="opt">출제 범위</label>
     <div class="pill-row" id="scopePills"></div>
     <label class="opt">문항 수</label>
@@ -284,12 +299,31 @@
     <div class="foot" id="setupInfo"></div>
   </section>
 
+  <!-- EXAM INTRO -->
+  <section class="screen" id="s-exam">
+    <button class="back" onclick="go('home')">← 홈으로</button>
+    <div class="hero">
+      <h1>🧪 종합시험</h1>
+      <p>전 범위에서 <b style="color:#fff">20문항</b>이 주제별로 고르게 출제됩니다.</p>
+    </div>
+    <div class="examnote">
+      ⚠️ <b>시험 규칙</b><br>
+      · 푸는 동안에는 <b>정답·해설·점수를 알려주지 않아요.</b> 채점은 마지막에 한 번에!<br>
+      · 시험이 끝나면 <b>오답노트</b>(문제 번호 · 지문 · 내가 고른 답 · 정답 · 해설)를 보여줍니다.<br>
+      · 오답노트 아래에서 <b>선생님께 결과를 제출</b>할 수 있어요.
+    </div>
+    <div style="margin-top:18px">
+      <button class="btn btn-primary" style="width:100%" onclick="startExam()">🚀 시험 시작</button>
+    </div>
+    <div class="foot" id="examInfo"></div>
+  </section>
+
   <!-- QUIZ -->
   <section class="screen" id="s-quiz">
     <div class="qbox">
       <div class="qmeta">
         <span class="qtag" id="quizTag">주제</span>
-        <span><b id="qIdx">1</b> / <span id="qTot">10</span> · 🔥<span id="qCombo">0</span></span>
+        <span><b id="qIdx">1</b> / <span id="qTot">10</span><span id="qComboWrap"> · 🔥<span id="qCombo">0</span></span></span>
       </div>
       <div class="qbar"><span id="quizBar"></span></div>
       <div class="qtext" id="quizText"></div>
@@ -311,12 +345,15 @@
       <div class="stars" id="rStars">★★★</div>
       <div class="score" id="rScore">10 / 10</div>
       <div class="msg" id="rMsg"></div>
-      <button class="btn btn-primary" id="rSubmitBtn" onclick="submitResult()" style="display:none;width:100%;margin-bottom:10px">📤 선생님께 결과 제출</button>
       <div class="row" style="justify-content:center">
-        <button class="btn btn-ghost" id="rWrongBtn" onclick="go('wrong')">📕 오답 보기</button>
+        <button class="btn btn-ghost" id="rWrongBtn" onclick="go('wrong')">📕 오답노트 전체</button>
         <button class="btn btn-ghost" onclick="go('home')">🏠 홈으로</button>
       </div>
     </div>
+    <!-- 시험이면 이번 회차 오답노트가 여기에 -->
+    <div id="examReview"></div>
+    <!-- 제출 버튼은 오답노트 아래(이 앵커 뒤)에 붙습니다 -->
+    <div id="rSubmitAnchor"></div>
   </section>
 
   <!-- WRONG NOTE -->
@@ -429,13 +466,14 @@ function sFlip(){beep(420,.06,'sine',.08)}
 function sWin(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,.18,'triangle',.14),i*110))}
 
 /* ================= 화면 전환 ================= */
-const screens=['login','home','concept','cards','match','setup','quiz','result','wrong'];
+const screens=['login','home','concept','cards','match','setup','exam','quiz','result','wrong'];
 function go(name){
   screens.forEach(s=>document.getElementById('s-'+s).classList.toggle('on',s===name));
   window.scrollTo(0,0);
   if(name==='home')renderHome();
   if(name==='concept')renderConceptGrid();
   if(name==='setup')renderSetup();
+  if(name==='exam')renderExamIntro();
   if(name==='wrong')renderWrong();
   if(name==='login'){
     document.getElementById('inCls').value=ST.cls||'';
@@ -697,7 +735,7 @@ function confetti(){
 }
 
 /* ================= 기출: 설정 ================= */
-let setupScope='all', setupCount=10;
+let setupScope='all', setupCount=8;
 function renderSetup(){
   const sp=document.getElementById('scopePills');
   sp.innerHTML='';
@@ -712,8 +750,8 @@ function renderSetup(){
   const cp=document.getElementById('countPills');
   cp.innerHTML='';
   const avail=setupScope==='all'?QUESTIONS.length:QUESTIONS.filter(q=>q.t===setupScope).length;
-  [10,20,60].forEach(c=>{
-    if(c>avail && c!==10) return;
+  [8,20,60].forEach(c=>{
+    if(c>avail && c!==8) return;
     const b=document.createElement('div');
     b.className='pill'+(setupCount===c?' on':'');
     b.textContent=(c>=avail?`전체 ${avail}`:c)+'문항';
@@ -727,17 +765,56 @@ function renderSetup(){
 function startQuizFromSetup(){startQuiz(setupScope,setupCount)}
 
 /* ================= 퀴즈 엔진 ================= */
-let quiz={list:[],i:0,combo:0,correct:0,answered:false,sel:-1,fromWrong:false};
+let quiz={list:[],i:0,combo:0,correct:0,answered:false,sel:-1,fromWrong:false,exam:false,answers:[]};
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 
 function startQuiz(scope,count,pool){
   let base= pool || (scope==='all'?QUESTIONS:QUESTIONS.filter(q=>q.t===scope));
   let list=shuffle(base);
   if(count && count<list.length) list=list.slice(0,count);
-  quiz={list,i:0,combo:0,correct:0,answered:false,sel:-1,fromWrong:!!pool,startTime:Date.now(),wrongNums:[],scopeKey:(pool?'wrong':scope)};
+  quiz={list,i:0,combo:0,correct:0,answered:false,sel:-1,fromWrong:!!pool,startTime:Date.now(),
+        wrongNums:[],scopeKey:(pool?'wrong':scope),exam:false,answers:[]};
   document.getElementById('qTot').textContent=list.length;
   document.getElementById('hudComboChip').style.display='flex';
+  document.getElementById('hudScoreChip').style.display='flex';
   go('quiz');renderQuestion();
+}
+
+/* ================= 종합시험 (20문항) =================
+   규약: 20문항 · 푸는 동안 정답/해설/점수/효과음 전부 감춤 · 끝난 뒤 오답노트 → 그 아래 제출 */
+const EXAM_N=20;
+function renderExamIntro(){
+  document.getElementById('examInfo').textContent=
+    `전체 ${QUESTIONS.length}문항 중 ${EXAM_N}문항이 주제별로 고르게 출제됩니다.`;
+}
+// 주제를 돌아가며 뽑아 한쪽으로 쏠리지 않게 구성
+function pickExamList(n){
+  const byTopic={};
+  QUESTIONS.forEach(q=>{(byTopic[q.t]=byTopic[q.t]||[]).push(q)});
+  const keys=shuffle(Object.keys(byTopic));
+  keys.forEach(k=>{byTopic[k]=shuffle(byTopic[k])});
+  const out=[];
+  for(let round=0; out.length<n; round++){
+    let added=0;
+    for(const k of keys){
+      if(out.length>=n)break;
+      if(byTopic[k].length>round){out.push(byTopic[k][round]);added++}
+    }
+    if(!added)break;
+  }
+  return shuffle(out);
+}
+function startExam(){
+  const list=pickExamList(EXAM_N);
+  if(!list.length){toast('문항이 없어요');return}
+  quiz={list,i:0,combo:0,correct:0,answered:false,sel:-1,fromWrong:false,startTime:Date.now(),
+        wrongNums:[],scopeKey:'exam',exam:true,answers:[]};
+  document.getElementById('qTot').textContent=list.length;
+  // 시험 중에는 점수·콤보를 감춘다
+  document.getElementById('hudComboChip').style.display='none';
+  document.getElementById('hudScoreChip').style.display='none';
+  go('quiz');renderQuestion();
+  toast('채점은 마지막에 한 번에! 끝까지 풀어요 ✍️');
 }
 function renderQuestion(){
   const q=quiz.list[quiz.i];
@@ -762,9 +839,12 @@ function renderQuestion(){
     cc.appendChild(d);
   });
   const ex=document.getElementById('quizExplain');ex.className='explain';ex.innerHTML='';
+  const last=quiz.i>=quiz.list.length-1;
   document.getElementById('submitBtn').style.display='';
-  document.getElementById('submitBtn').textContent='제출';
+  document.getElementById('submitBtn').textContent=
+    quiz.exam ? (last?'답안 제출 🎯':'다음 →') : '제출';
   document.getElementById('nextBtn').style.display='none';
+  document.getElementById('qComboWrap').style.display=quiz.exam?'none':'';
   document.getElementById('qCombo').textContent=quiz.combo;
 }
 function selectChoice(vi){
@@ -776,9 +856,17 @@ function selectChoice(vi){
 function submitAnswer(){
   if(quiz.answered){nextQuestion();return}
   if(quiz.sel<0){toast('보기를 선택하세요 👆');return}
-  quiz.answered=true;
   const q=quiz.list[quiz.i];
   const chosen=q._order[quiz.sel];
+  quiz.answers[quiz.i]=chosen.idx;
+  if(quiz.exam){
+    // 시험: 정답·해설·점수·효과음 없이 바로 다음 문제로 (채점은 마지막에)
+    if(chosen.idx===q.a)quiz.correct++;
+    else quiz.wrongNums.push(quiz.i+1);
+    nextQuestion();
+    return;
+  }
+  quiz.answered=true;
   const isOK=chosen.idx===q.a;
   ST.seen[q.id]=1;
   const nodes=document.querySelectorAll('#quizChoices .choice');
@@ -819,12 +907,15 @@ function nextQuestion(){
   quiz.i++;renderQuestion();
 }
 function quitQuiz(){
+  if(quiz.exam && !confirm('시험을 그만두면 이번 답안은 채점되지 않아요. 정말 나갈까요?'))return;
   document.getElementById('hudComboChip').style.display='none';
+  document.getElementById('hudScoreChip').style.display='flex';
   go('home');
 }
 function finishQuiz(){
   document.getElementById('quizBar').style.width='100%';
-  const n=quiz.list.length, c=quiz.correct, pct=Math.round(c/n*100);
+  if(quiz.exam)applyExamRecords();   // 시험 중 감췄던 기록·점수를 여기서 한 번에 반영
+  const n=quiz.list.length, c=quiz.correct, pct=n?Math.round(c/n*100):0;
   let grade,emoji,stars,msg;
   if(pct>=90){grade='S';emoji='🏆';stars='★★★';msg='완벽에 가까워요! 기능사 합격권 실력입니다.'}
   else if(pct>=75){grade='A';emoji='🎉';stars='★★★';msg='합격 안정권! 틀린 개념만 복습하면 완벽해요.'}
@@ -838,32 +929,101 @@ function finishQuiz(){
   document.getElementById('rMsg').textContent=msg;
   document.getElementById('rWrongBtn').style.display=ST.wrong.length?'':'none';
   document.getElementById('hudComboChip').style.display='none';
-  // 제출용 결과 저장 + 버튼 표시(교사 제출 링크가 설정된 경우에만)
-  const sk=quiz.scopeKey;
-  const scopeName = (sk==='all')?'전체' : (sk==='wrong')?'오답' : (TOPMAP[sk]?TOPMAP[sk].name:'전체');
-  lastResult={score:pct, correct:c, total:n, wrong:(quiz.wrongNums||[]).slice(),
-    durationSec:Math.round((Date.now()-(quiz.startTime||Date.now()))/1000), scope:scopeName};
-  if(window.RankKit) RankKit.award(pct, '3D프린터운용기능사 — '+scopeName);   /* 랭킹전 RP 정산 */
-  const hasRC=!!(window.ResultCollector&&ResultCollector.config&&ResultCollector.config.endpoint);
-  const sb=document.getElementById('rSubmitBtn');
-  sb.style.display=hasRC?'':'none';
-  sb.textContent=`📤 [${scopeName}] 결과 제출`;
+  document.getElementById('hudScoreChip').style.display='flex';
+  hud();
+  if(window.RankKit) RankKit.award(pct, submitMode());   /* 랭킹전 RP 정산 (다른 세션 작업 유지) */
+  renderExamReview();          // 시험이면 이번 회차 오답노트
+  mountSubmit(pct,c,n);        // 오답노트 아래에 제출 버튼
   sWin();
   go('result');
 }
-let lastResult=null;
-const RC_TOOL_BASE='3D프린터 마스터';
-function submitResult(){
-  if(!(window.ResultCollector&&ResultCollector.config&&ResultCollector.config.endpoint)){
-    toast('제출용 링크가 설정되어 있지 않아요');return;
+
+// 시험이 끝난 뒤에야 점수·학습기록·오답노트에 반영한다
+function applyExamRecords(){
+  let gain=0;
+  quiz.list.forEach((q,i)=>{
+    ST.seen[q.id]=1;
+    const ch=quiz.answers[i];
+    if(ch===q.a){ST.ok[q.id]=1;ST.wrong=ST.wrong.filter(w=>w!==q.id);gain+=10}
+    else if(!ST.wrong.includes(q.id))ST.wrong.push(q.id);
+  });
+  ST.score+=gain;
+  save();
+}
+
+/* ================= 시험 오답노트 ================= */
+function renderExamReview(){
+  const box=document.getElementById('examReview');
+  box.innerHTML='';
+  if(!quiz.exam)return;
+  const wrongs=quiz.list.map((q,i)=>({q,i,ch:quiz.answers[i]})).filter(x=>x.ch!==x.q.a);
+  if(!wrongs.length){
+    box.innerHTML='<div class="empty">🎯 이번 시험은 전부 맞혔어요! 오답이 없습니다.</div>';
+    return;
   }
+  box.innerHTML=`<div class="sec-title">📕 오답노트 — 이번 시험에서 틀린 ${wrongs.length}문항</div>`;
+  wrongs.forEach(({q,i,ch})=>{
+    const d=document.createElement('div');
+    d.className='qbox';d.style.marginBottom='12px';
+    d.innerHTML=`<div class="qmeta"><span class="qtag">${i+1}번 · ${TOPMAP[q.t].icon} ${TOPMAP[q.t].name}</span></div>
+      <div style="font-weight:800;font-size:15.5px;line-height:1.5;margin:6px 0 10px">${q.q}</div>
+      <div class="ansline bad">✗ 내가 고른 답 &nbsp;<b>${q.c[ch]}</b></div>
+      <div class="ansline good">✓ 정답 &nbsp;<b>${q.c[q.a]}</b></div>
+      <div class="explain on" style="margin-top:10px">${q.e}</div>`;
+    box.appendChild(d);
+  });
+}
+
+/* ================= 결과 제출 (파트별) =================
+   규약: mode는 파트마다 다르게, wrong은 무엇을 틀렸는지, 버튼은 항상 보이게 */
+let lastResult=null;
+function partName(){
+  if(quiz.exam)return '종합시험';
+  const sk=quiz.scopeKey;
+  if(sk==='wrong')return '오답 다시 풀기';
+  if(sk==='all')return '연습 · 전체 랜덤';
+  return (TOPMAP[sk]?TOPMAP[sk].name:'연습')+' 연습';
+}
+function submitMode(){
+  if(quiz.exam)return '3D프린터운용기능사 — 종합시험';
+  const sk=quiz.scopeKey;
+  if(sk==='wrong')return '3D프린터운용기능사 — 오답 다시 풀기';
+  if(sk==='all')return '3D프린터운용기능사 — 연습(전체 랜덤)';
+  return (TOPMAP[sk]?TOPMAP[sk].name:'3D프린터운용기능사')+' — 연습';
+}
+function submitExtra(){
+  if(quiz.exam)return ['전 범위 종합 평가 응시'];
+  const sk=quiz.scopeKey;
+  if(sk==='wrong')return ['오답을 다시 풀며 약점을 보완함'];
+  if(sk==='all')return ['전 범위 문제 해결'];
+  return [(TOPMAP[sk]?TOPMAP[sk].name:'')+' 문제 해결'];
+}
+function shortTxt(t,len){
+  t=String(t==null?'':t).replace(/<[^>]*>/g,'')
+    .replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').trim();
+  return t.length>len?t.slice(0,len-1)+'…':t;
+}
+// "3번 재료(소재) · ABS→PLA" 처럼 무엇을 틀렸는지 남긴다
+function wrongDescs(){
+  return quiz.list.map((q,i)=>({q,i,ch:quiz.answers[i]}))
+    .filter(x=>x.ch!==undefined && x.ch!==x.q.a)
+    .map(({q,i,ch})=>`${i+1}번 ${TOPMAP[q.t]?TOPMAP[q.t].name:''} · ${shortTxt(q.c[ch],16)}→${shortTxt(q.c[q.a],16)}`);
+}
+function mountSubmit(pct,c,n){
+  const part=partName();
+  lastResult={
+    mode:submitMode(), score:pct, correct:c, total:n,
+    wrong:wrongDescs(),
+    durationSec:Math.round((Date.now()-(quiz.startTime||Date.now()))/1000)
+  };
+  const anchor=document.getElementById('rSubmitAnchor');
+  if(!(window.ResultCollector&&ResultCollector.attach)||!anchor)return;
   // 로그인한 이름을 제출 모달에 미리 채워줌(학생이 바꿀 수 있음)
   try{const k='rc_student';const cur=JSON.parse(localStorage.getItem(k)||'{}');
     if(ST.name&&!cur.name){cur.name=ST.name;localStorage.setItem(k,JSON.stringify(cur))}}catch(e){}
-  // 항목(주제)별로 교사 시트 탭이 나뉘도록 tool 이름에 항목명을 붙임
-  const sc=(lastResult&&lastResult.scope)?lastResult.scope:'전체';
-  ResultCollector.config.tool = RC_TOOL_BASE+' · '+sc;
-  ResultCollector.open(lastResult||{});
+  const btn=ResultCollector.attach(anchor, ()=>lastResult,
+    {id:'rcBtn', className:'btn btn-primary', mode:lastResult.mode, extra:submitExtra()});
+  if(btn){btn.style.width='100%';btn.textContent=`📤 [${part}] 결과 제출`;}
 }
 
 /* ================= 오답노트 ================= */
