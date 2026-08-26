@@ -86,7 +86,13 @@
     '  border-radius:10px;padding:13px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit}',
     '.bd-nav button.main{background:linear-gradient(135deg,#3b82f6,#5b8cff);border-color:transparent;color:#fff}',
     '.bd-nav button:disabled{opacity:.4;cursor:default}',
-    'body.bd-open{overflow:hidden}'
+    'body.bd-open{overflow:hidden}',
+    /* 슬라이드가 열려 있는 동안에는 본체의 떠 있는 위젯을 숨긴다.
+       레이어가 z-index 로 덮고 있긴 하지만, 나중에 더 높은 z 를 쓰는 위젯이
+       생기면 바로 겹치므로 아예 가려 둔다. 수업 화면도 깔끔해진다. */
+    'body.bd-open #bb-btn,',        /* 뒤로/목록으로 (backbar.js) */
+    'body.bd-open .tr-btn,',        /* 기록 초기화 (reset.js) */
+    'body.bd-open #rk-badge{display:none!important}'   /* 계급 배지 (rank.js) */
   ].join('\n');
 
   var DECK = [], UNIT = [];
