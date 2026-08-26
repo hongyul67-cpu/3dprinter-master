@@ -235,6 +235,10 @@
         <div class="ic">🧪</div><h3>종합시험 (20문항)</h3>
         <p>실전처럼 20문항. 푸는 동안에는 정답·해설·점수를 알려주지 않고, 끝나면 <b>오답노트</b>와 함께 채점해 줘요.</p>
       </div>
+      <div class="mode" onclick="go('board')">
+        <div class="ic">🖥️</div><h3>수업 슬라이드 <small style="opacity:.7">(선생님용)</small></h3>
+        <p>전자칠판으로 앞에서 끌고 가는 화면. <b>요점 → 발문 → 퀴즈 → 정답</b> 순서로 하나씩 열어요.</p>
+      </div>
     </div>
     <div class="subbtns">
       <button class="btn btn-ghost" onclick="go('wrong')">📕 오답노트 (<span id="wrongCnt">0</span>)</button>
@@ -362,6 +366,13 @@
     <div class="sec-title">📕 오답노트</div>
     <div id="wrongList"></div>
   </section>
+
+  <!-- 수업(전자칠판) — 예전 board.html 이 여기로 들어왔습니다 -->
+  <section class="screen" id="s-board">
+    <button class="back" onclick="go('home')">← 홈으로</button>
+    <div class="sec-title">🖥️ 수업 슬라이드 — 전자칠판·프로젝터로 앞에서 끌고 가는 화면</div>
+    <div id="boardHome"></div>
+  </section>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -437,6 +448,8 @@
 <script src="data2.js"></script>
 <script src="data3.js"></script>
 <script src="data4.js"></script>
+<script src="lesson.js"></script>
+<script src="board.js"></script>
 <script>
 /* ================= 상태 ================= */
 const LS='td3d_v1';
@@ -466,7 +479,7 @@ function sFlip(){beep(420,.06,'sine',.08)}
 function sWin(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,.18,'triangle',.14),i*110))}
 
 /* ================= 화면 전환 ================= */
-const screens=['login','home','concept','cards','match','setup','exam','quiz','result','wrong'];
+const screens=['login','home','concept','cards','match','setup','exam','quiz','result','wrong','board'];
 function go(name){
   screens.forEach(s=>document.getElementById('s-'+s).classList.toggle('on',s===name));
   window.scrollTo(0,0);
@@ -475,11 +488,22 @@ function go(name){
   if(name==='setup')renderSetup();
   if(name==='exam')renderExamIntro();
   if(name==='wrong')renderWrong();
+  if(name==='board')openBoardHome();
   if(name==='login'){
     document.getElementById('inCls').value=ST.cls||'';
     document.getElementById('inName').value=ST.name||'';
     document.getElementById('loginInfo').textContent=SYNC_URL?'':'※ 지금은 이 기기에만 저장돼요(클라우드 미연결).';
   }
+}
+/* 수업 슬라이드 — 예전 board.html 을 이 안으로 들여왔다.
+   원고는 lesson.js, 화면은 board.js(모든 도구 공용)가 담당한다. */
+let boardReady=false;
+function openBoardHome(){
+  if(boardReady) return;
+  const el=document.getElementById('boardHome');
+  if(!window.Board){ el.innerHTML='<p class="foot">수업자료를 불러오지 못했습니다.</p>'; return; }
+  Board.home(el,{hint:'필기 출제기준 12개 항목을 4단원으로 묶었습니다. 슬라이드 끝의 버튼을 누르면 <b>그 항목만 골라 푸는 문제풀이</b>로 넘어갑니다.'});
+  boardReady=true;
 }
 function hud(){
   document.getElementById('hudScore').textContent=ST.score;

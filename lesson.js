@@ -1,6 +1,6 @@
 /* ══════════════════════════════════════════════════════════════
    3D프린터운용기능사 전자칠판 수업자료 — 슬라이드 원고
-   board.html 에서 window.LESSON / window.UNITS 로 읽는다.
+   board.js 가 window.LESSON / window.UNITS 로 읽는다 (index.html 의 수업 슬라이드 화면).
 
    필기 출제기준 12개 항목(index.html 의 TOPICS)을 4단원으로 묶었다.
    슬라이드 한 장 = 제목 + 그림(SVG) + 요점 → 발문 → 퀴즈 → 정답 → 실습 이동
@@ -445,6 +445,6 @@ var UNITS = (function(){
   return order;
 })();
 
-/* board.html 에서 window.LESSON / window.UNITS 로 읽는다 */
+/* board.js 가 window.LESSON / window.UNITS 로 읽는다 */
 window.LESSON = LESSON;
 window.UNITS  = UNITS;
