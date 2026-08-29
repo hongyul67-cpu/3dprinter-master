@@ -21,6 +21,9 @@
     color:var(--txt); min-height:100vh; padding-bottom:40px;
   }
   .wrap{max-width:860px;margin:0 auto;padding:14px}
+  /* 좁은 화면에서는 왼쪽 아래 떠있는 버튼(평가 기준·뒤로·기록 초기화)이
+     본문 맨 끝 버튼을 덮어 클릭을 가로챈다. 그만큼 아래를 비워 둔다. */
+  @media (max-width:820px){ body{padding-bottom:150px} }
   /* header */
   header{display:flex;align-items:center;gap:10px;padding:10px 4px 4px}
   .logo{font-size:22px;font-weight:900;letter-spacing:-.5px}
@@ -504,7 +507,7 @@ function openBoardHome(){
   if(boardReady) return;
   const el=document.getElementById('boardHome');
   if(!window.Board){ el.innerHTML='<p class="foot">수업자료를 불러오지 못했습니다.</p>'; return; }
-  Board.home(el,{hint:'필기 출제기준 12개 항목을 4단원으로 묶었습니다. 슬라이드 끝의 버튼을 누르면 <b>그 항목만 골라 푸는 문제풀이</b>로 넘어갑니다.'});
+  Board.home(el,{hint:'필기 출제기준 12개 항목 가운데 11개를 4단원 · 슬라이드 11장으로 묶었습니다(도면·투상은 아직 없습니다). 슬라이드 끝의 버튼을 누르면 <b>그 항목만 골라 푸는 문제풀이</b>로 넘어갑니다.'});
   boardReady=true;
 }
 function hud(){
@@ -1098,6 +1101,13 @@ function resetAll(){
 if(ST.name){renderHome();hud();go('home')}
 else{go('login')}
 hud();
+/* 수업 슬라이드의 「… 문제 풀기」 버튼이 주는 ?t=<주제키> — 그 주제만 바로 풀린다.
+   (없거나 모르는 키면 아무 일도 하지 않고 평소 화면 그대로 둔다) */
+(function(){
+  var t; try{ t=new URLSearchParams(location.search).get('t'); }catch(e){ return }
+  if(!t || !TOPMAP[t]) return;
+  renderHome(); hud(); startQuiz(t, 8);
+})();
 </script>
 <!-- 공용 기록 초기화 (교실 공용 PC용) -->
 <script src="https://hongyul67-cpu.github.io/links/reset.js"></script>
