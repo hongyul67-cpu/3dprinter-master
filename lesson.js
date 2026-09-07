@@ -1,6 +1,6 @@
 /* ══════════════════════════════════════════════════════════════
-   3D프린터운용기능사 전자칠판 수업자료 — 슬라이드 원고
-   board.js 가 window.LESSON / window.UNITS 로 읽는다 (index.html 의 수업 슬라이드 화면).
+   3D프린터운용기능사 수업 슬라이드 — 원고
+   index.html 이 window.LESSON / window.UNITS 로 읽어 공용 board-pro.js 에 넘긴다.
 
    필기 출제기준 12개 항목(index.html 의 TOPICS) 가운데 11개를 4단원으로 묶었다.
    (draw = 도면·투상 슬라이드는 아직 없다 — 만들면 UNITS 에도 같이 넣을 것)
@@ -447,6 +447,6 @@ var UNITS = (function(){
   return order;
 })();
 
-/* board.js 가 window.LESSON / window.UNITS 로 읽는다 */
+/* index.html 의 openBoard() 가 window.LESSON / window.UNITS 로 읽는다 */
 window.LESSON = LESSON;
 window.UNITS  = UNITS;

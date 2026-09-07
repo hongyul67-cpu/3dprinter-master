@@ -240,9 +240,9 @@
         <div class="ic">🧪</div><h3>종합시험 (20문항)</h3>
         <p>실전처럼 20문항. 푸는 동안에는 정답·해설·점수를 알려주지 않고, 끝나면 <b>오답노트</b>와 함께 채점해 줘요.</p>
       </div>
-      <div class="mode" onclick="go('board')">
-        <div class="ic">🖥️</div><h3>수업 슬라이드 <small style="opacity:.7">(선생님용)</small></h3>
-        <p>전자칠판으로 앞에서 끌고 가는 화면. <b>요점 → 발문 → 퀴즈 → 정답</b> 순서로 하나씩 열어요.</p>
+      <div class="mode" onclick="openBoard()">
+        <div class="ic">📽️</div><h3>수업 슬라이드 열기 <small style="opacity:.7">(선생님용)</small></h3>
+        <p>교실 앞에 띄우는 화면. <b>요점 → 발문 → 퀴즈 → 정답</b> 순서로 하나씩 열어요.</p>
       </div>
     </div>
     <div class="subbtns">
@@ -372,12 +372,6 @@
     <div id="wrongList"></div>
   </section>
 
-  <!-- 수업(전자칠판) — 예전 board.html 이 여기로 들어왔습니다 -->
-  <section class="screen" id="s-board">
-    <button class="back" onclick="go('home')">← 홈으로</button>
-    <div class="sec-title">🖥️ 수업 슬라이드 — 전자칠판·프로젝터로 앞에서 끌고 가는 화면</div>
-    <div id="boardHome"></div>
-  </section>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -454,7 +448,9 @@
 <script src="data3.js"></script>
 <script src="data4.js"></script>
 <script src="lesson.js"></script>
-<script src="board.js"></script>
+<!-- 수업 슬라이드 — 원고(lesson.js) 는 이 저장소 것, 화면(board-pro.js) 은 links 의 공용 파일이다.
+     저장소에 사본을 두지 않는다. 화면을 고쳐야 하면 links 저장소에서 고친다. -->
+<script src="https://hongyul67-cpu.github.io/links/board-pro.js"></script>
 <script>
 /* ================= 상태 ================= */
 const LS='td3d_v1';
@@ -484,7 +480,7 @@ function sFlip(){beep(420,.06,'sine',.08)}
 function sWin(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,.18,'triangle',.14),i*110))}
 
 /* ================= 화면 전환 ================= */
-const screens=['login','home','concept','cards','match','setup','exam','quiz','result','wrong','board'];
+const screens=['login','home','concept','cards','match','setup','exam','quiz','result','wrong'];
 function go(name){
   screens.forEach(s=>document.getElementById('s-'+s).classList.toggle('on',s===name));
   window.scrollTo(0,0);
@@ -493,22 +489,55 @@ function go(name){
   if(name==='setup')renderSetup();
   if(name==='exam')renderExamIntro();
   if(name==='wrong')renderWrong();
-  if(name==='board')openBoardHome();
   if(name==='login'){
     document.getElementById('inCls').value=ST.cls||'';
     document.getElementById('inName').value=ST.name||'';
     document.getElementById('loginInfo').textContent=SYNC_URL?'':'※ 지금은 이 기기에만 저장돼요(클라우드 미연결).';
   }
 }
-/* 수업 슬라이드 — 예전 board.html 을 이 안으로 들여왔다.
-   원고는 lesson.js, 화면은 board.js(모든 도구 공용)가 담당한다. */
-let boardReady=false;
-function openBoardHome(){
-  if(boardReady) return;
-  const el=document.getElementById('boardHome');
-  if(!window.Board){ el.innerHTML='<p class="foot">수업자료를 불러오지 못했습니다.</p>'; return; }
-  Board.home(el,{hint:'필기 출제기준 12개 항목 가운데 11개를 4단원 · 슬라이드 11장으로 묶었습니다(도면·투상은 아직 없습니다). 슬라이드 끝의 버튼을 누르면 <b>그 항목만 골라 푸는 문제풀이</b>로 넘어갑니다.'});
-  boardReady=true;
+/* ══════════════════ 수업 슬라이드 (선생님용) ══════════════════
+   원고는 lesson.js, 화면은 links 의 공용 board-pro.js 다 — 저장소에 사본을 두지 않는다.
+   단원은 슬라이드의 u 로 묶는다(lesson.js 의 UNITS 와 같은 방식).
+
+   ▸ 슬라이드 끝의 「… 문제 풀기」 는 원고의 go:['글','링크'] 다.
+     공용 뷰어에는 그 칸이 없으므로 정답 해설(anse) 끝에 링크로 붙인다 —
+     열리는 시점(정답 공개)은 예전과 같다. ?rc= 는 그대로 넘겨 준다. */
+function bdRc(url){
+  var rc=new URLSearchParams(location.search).get('rc');
+  if(!rc) return url;
+  return url+(url.indexOf('?')>=0?'&':'?')+'rc='+encodeURIComponent(rc);
+}
+function bdSlide(s){
+  if(!s.go) return s;
+  var o={}; for(var k in s) o[k]=s[k];
+  o.anse=(s.anse||'')+'<a href="'+bdRc(s.go[1])+'" target="_blank" rel="noopener" '+
+    'style="display:block;text-align:center;margin-top:12px;padding:11px;border-radius:11px;'+
+    'background:linear-gradient(135deg,#0e9f6e,#3ad995);color:#062a1c;font-weight:800;'+
+    'text-decoration:none">'+s.go[0]+' ↗</a>';
+  return o;
+}
+function openBoard(){
+  if(!window.BoardPro || !(window.LESSON||[]).length){
+    alert('수업자료를 불러오지 못했습니다. 잠시 뒤 새로고침해 주세요.'); return;
+  }
+  const ALL=window.LESSON.map(bdSlide), units=[];
+  ALL.forEach(s=>{ if(units.indexOf(s.u)<0) units.push(s.u); });
+  const menu=units.map(u=>{
+    const list=ALL.filter(s=>s.u===u);
+    return { icon:'🖨️', title:u, desc:'슬라이드 '+list.length+'장 · '+list[0].t,
+             run:{ kind:'lesson', deck:list } };
+  });
+  menu.push({ icon:'📚', wide:true, title:'전체 이어서 ('+ALL.length+'장)',
+              desc:'①단원부터 ④단원까지 순서대로 진행합니다.',
+              run:{ kind:'lesson', deck:ALL } });
+  menu.push({ icon:'⬜', wide:true, title:'빈 칠판', desc:'슬라이드 없이 판서만.',
+              run:{ kind:'blank' } });
+  BoardPro.open({
+    title:'📽️ 3D프린터운용기능사 · 수업 슬라이드',
+    sub:'필기 출제기준 12개 항목 가운데 11개를 4단원 · 슬라이드 11장으로 묶었습니다(도면·투상은 아직 없습니다).<br>'+
+        '요점 → <b>발문</b> → 퀴즈 → 정답을 하나씩 열고, 정답 뒤의 버튼으로 <b>그 항목만 골라 푸는 문제풀이</b>로 넘어갑니다.',
+    menu: menu
+  });
 }
 function hud(){
   document.getElementById('hudScore').textContent=ST.score;
