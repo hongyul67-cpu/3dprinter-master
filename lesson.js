@@ -5,6 +5,8 @@
    필기 출제기준 12개 항목(index.html 의 TOPICS) 가운데 11개를 4단원으로 묶었다.
    (draw = 도면·투상 슬라이드는 아직 없다 — 만들면 UNITS 에도 같이 넣을 것)
    슬라이드 한 장 = 제목 + 그림(SVG) + 요점 → 발문 → 퀴즈 → 정답 → 실습 이동
+   그림: svg: FIG.svgOf('키') 인 장은 figs.js 의 그림을 배우기 카드와 함께 쓴다(2026-09-30 그림00).
+        나머지 장의 그림은 아래 svg() 로 이 파일 안에서 그린다.
    ══════════════════════════════════════════════════════════════ */
 
 var HOME = 'https://hongyul67-cpu.github.io/3dprinter-master/';
@@ -17,7 +19,9 @@ function svg(w, h, body){
   return '<svg viewBox="0 0 ' + w + ' ' + h + '" width="100%" style="max-height:38vh" '
        + 'xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">'
        + '<defs><marker id="ar" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">'
-       + '<path d="M0,0 L8,3 L0,6 z" fill="' + C.ink + '"/></marker></defs>' + body + '</svg>';
+       + '<path d="M0,0 L8,3 L0,6 z" fill="' + C.ink + '"/></marker></defs>'
+       /* 흰 종이 바탕 — 뷰어의 그림 칸이 어두워서, 바탕이 없으면 검은 글자가 안 보였다 */
+       + '<rect x="0" y="0" width="' + w + '" height="' + h + '" rx="10" fill="#fff"/>' + body + '</svg>';
 }
 function tx(x, y, s, o){
   o = o || {};
@@ -39,23 +43,7 @@ var LESSON = [
 /* ═══════════ 단원 ① 3D프린팅 이해 ═══════════ */
 {
   u:'① 3D프린팅 이해', t:'적층가공 — 깎지 않고 쌓아 올린다',
-  svg: svg(520, 235,
-    /* 절삭 */
-    '<rect x="45" y="45" width="120" height="90" fill="#e5e7eb" stroke="' + C.ink + '" stroke-width="2"/>' +
-    '<path d="M45,45 L95,45 L95,75 L130,75 L130,45 L165,45" fill="none" stroke="' + C.red + '" stroke-width="2.5"/>' +
-    tx(105, 32, '절삭가공 (SM)', {a:'middle', b:1}) +
-    tx(105, 158, '큰 덩어리에서 깎아냄', {a:'middle', size:12, c:C.dim}) +
-    tx(105, 178, '버려지는 재료 많음', {a:'middle', size:12, c:C.red}) +
-    /* 적층 */
-    (function(){ var s=''; for(var i=0;i<6;i++){
-        var w = 120 - i*14;
-        s += '<rect x="' + (355 - w/2) + '" y="' + (125 - i*14) + '" width="' + w
-           + '" height="12" fill="#dbeafe" stroke="' + C.blue + '" stroke-width="1.4"/>'; }
-      return s; })() +
-    tx(355, 32, '적층가공 (AM)', {a:'middle', b:1, c:C.blue}) +
-    tx(355, 158, '한 층씩 쌓아 올림', {a:'middle', size:12, c:C.dim}) +
-    tx(355, 178, '버리는 재료 적음 · 속이 빈 모양도 가능', {a:'middle', size:12, c:C.green}) +
-    tx(260, 215, '3D모델링 → 슬라이싱 → 출력 → 후처리', {a:'middle', size:15, b:1, c:C.gold})),
+  svg: FIG.svgOf('am'),   /* figs.js 의 그림 — 배우기 카드와 같은 그림 */
   cap:'왼쪽은 깎는 가공(밀링·선반), 오른쪽이 3D프린팅 — 쌓는 가공이다',
   pts:[
     '3D프린팅의 정식 이름은 <b>적층가공(AM · Additive Manufacturing)</b>. 재료를 <b>더해서</b> 만든다.',
@@ -74,25 +62,7 @@ var LESSON = [
 },
 {
   u:'① 3D프린팅 이해', t:'프린팅 방식 — 무엇을 굳히느냐로 갈린다',
-  svg: svg(520, 250,
-    box(20, 30, 150, 92, '#eff6ff', C.blue) +
-    tx(95, 52, 'FDM / FFF', {a:'middle', b:1, size:15, c:C.blue}) +
-    tx(95, 74, '필라멘트를 녹여 압출', {a:'middle', size:12}) +
-    tx(95, 94, '재료 : 고체 실(PLA·ABS)', {a:'middle', size:11, c:C.dim}) +
-    tx(95, 113, '가장 싸고 흔함 · 층 자국', {a:'middle', size:11, c:C.dim}) +
-    box(185, 30, 150, 92, '#f0fdf4', C.green) +
-    tx(260, 52, 'SLA / DLP', {a:'middle', b:1, size:15, c:C.green}) +
-    tx(260, 74, '빛으로 액체 레진 경화', {a:'middle', size:12}) +
-    tx(260, 94, '재료 : 액상 광경화 수지', {a:'middle', size:11, c:C.dim}) +
-    tx(260, 113, '표면 매끄럽고 정밀', {a:'middle', size:11, c:C.dim}) +
-    box(350, 30, 150, 92, '#fff7ed', C.orange) +
-    tx(425, 52, 'SLS / SLM', {a:'middle', b:1, size:15, c:C.orange}) +
-    tx(425, 74, '레이저로 분말 소결', {a:'middle', size:12}) +
-    tx(425, 94, '재료 : 나일론·금속 분말', {a:'middle', size:11, c:C.dim}) +
-    tx(425, 113, '서포트가 필요 없음', {a:'middle', size:11, c:C.dim}) +
-    tx(260, 155, 'SLA = 레이저 한 점씩   ·   DLP = 빔프로젝터로 한 면씩(더 빠름)', {a:'middle', size:13, b:1}) +
-    tx(260, 185, '분말이 쌓인 층 자체가 받쳐 주므로 SLS 는 서포트가 필요 없다', {a:'middle', size:13, c:C.dim}) +
-    tx(260, 220, '그 밖에  3DP(분말 + 접착제) · LOM(시트 적층) · MJ(재료 분사)', {a:'middle', size:12.5, c:C.dim})),
+  svg: FIG.svgOf('method-tree'),   /* figs.js 의 그림 — 배우기 카드와 같은 그림 */
   cap:'세 갈래로 나눠 외우면 쉽다 — 실을 녹이나, 빛으로 굳히나, 분말을 녹여 붙이나',
   pts:[
     '<b>FDM(FFF)</b> — 필라멘트를 노즐에서 녹여 짜 놓는다. 학교·가정용 대부분. 싸지만 층 자국이 남는다.',
@@ -146,21 +116,7 @@ var LESSON = [
 /* ═══════════ 단원 ② 데이터 만들기 ═══════════ */
 {
   u:'② 데이터 만들기', t:'3D 스캐닝 — 실물을 데이터로 되돌린다',
-  svg: svg(520, 230,
-    box(25, 35, 210, 120, '#f9fafb', C.dim) +
-    tx(130, 58, '접촉식', {a:'middle', b:1, size:16}) +
-    tx(130, 82, '탐침(프로브)을 대고 점을 찍는다', {a:'middle', size:12}) +
-    tx(130, 104, 'CMM(3차원 측정기)', {a:'middle', size:12, c:C.dim}) +
-    tx(130, 126, '정밀도 최고 · 느림', {a:'middle', size:12, c:C.green}) +
-    tx(130, 146, '무르거나 얇은 물체엔 못 씀', {a:'middle', size:11.5, c:C.red}) +
-    box(285, 35, 210, 120, '#eff6ff', C.blue) +
-    tx(390, 58, '비접촉식', {a:'middle', b:1, size:16, c:C.blue}) +
-    tx(390, 82, '빛·레이저를 쏴서 읽는다', {a:'middle', size:12}) +
-    tx(390, 104, '백색광 · 레이저 삼각측량 · TOF', {a:'middle', size:12, c:C.dim}) +
-    tx(390, 126, '빠르고 안 건드림', {a:'middle', size:12, c:C.green}) +
-    tx(390, 146, '검거나 투명·반사면에 약함', {a:'middle', size:11.5, c:C.red}) +
-    tx(260, 190, '여러 방향에서 찍은 점군을 겹쳐 하나로 맞추는 것 = 정합(registration)', {a:'middle', size:13, b:1, c:C.gold}) +
-    tx(260, 216, '점군(Point Cloud) → 폴리곤(메시) → 편집 → STL', {a:'middle', size:13, c:C.dim})),
+  svg: FIG.svgOf('scan-types'),   /* figs.js 의 그림 — 배우기 카드와 같은 그림 */
   cap:'스캐너는 크게 “닿느냐 안 닿느냐”로 나뉜다',
   pts:[
     '<b>접촉식</b>은 탐침을 실제로 대고 좌표를 찍는다. <b>CMM</b>이 대표. 가장 정밀하지만 느리고, 무르거나 얇은 물체는 눌려서 못 쓴다.',
@@ -177,24 +133,7 @@ var LESSON = [
 },
 {
   u:'② 데이터 만들기', t:'데이터 포맷 — STL 이 표준인 이유와 한계',
-  svg: svg(520, 250,
-    /* 삼각형 메시 구 */
-    '<g transform="translate(105,105)">' +
-    '<polygon points="0,-60 52,-30 52,30 0,60 -52,30 -52,-30" fill="#dbeafe" stroke="' + C.blue + '" stroke-width="1.6"/>' +
-    '<line x1="0" y1="-60" x2="0" y2="60" stroke="' + C.blue + '" stroke-width="1.2"/>' +
-    '<line x1="-52" y1="-30" x2="52" y2="30" stroke="' + C.blue + '" stroke-width="1.2"/>' +
-    '<line x1="52" y1="-30" x2="-52" y2="30" stroke="' + C.blue + '" stroke-width="1.2"/>' +
-    '<line x1="-52" y1="-30" x2="52" y2="-30" stroke="' + C.blue + '" stroke-width="1.2"/>' +
-    '<line x1="-52" y1="30" x2="52" y2="30" stroke="' + C.blue + '" stroke-width="1.2"/>' +
-    '</g>' +
-    tx(105, 195, 'STL = 삼각형으로 덮은 껍데기', {a:'middle', size:13, b:1}) +
-    tx(105, 218, '삼각형을 잘게 → 매끈하지만 파일 커짐', {a:'middle', size:11.5, c:C.dim}) +
-    tx(230, 55, 'STL', {size:16, b:1, c:C.blue}) + tx(300, 55, '삼각형 메시 · 사실상 표준 · 색·재질 없음', {size:12.5}) +
-    tx(230, 88, 'OBJ', {size:16, b:1}) + tx(300, 88, '색 · 재질(텍스처)까지 담김', {size:12.5}) +
-    tx(230, 121, 'AMF / 3MF', {size:15, b:1}) + tx(330, 121, '색 · 재질 · 단위까지 담는 최신 포맷', {size:12.5}) +
-    tx(230, 154, 'STEP / IGES', {size:15, b:1, c:C.green}) + tx(340, 154, 'CAD끼리 주고받는 중립 포맷', {size:12.5}) +
-    tx(230, 176, '(메시가 아니라 정확한 곡면 정보를 그대로 가짐)', {size:11.5, c:C.dim}) +
-    tx(375, 218, '슬라이서에 넣는 건 보통 STL', {a:'middle', size:13, b:1, c:C.gold})),
+  svg: FIG.svgOf('stl'),   /* figs.js 의 그림 — 배우기 카드와 같은 그림 */
   cap:'STL은 물체를 삼각형 껍데기로만 표현한다 — 그래서 가볍고, 그래서 색이 없다',
   pts:[
     '<b>STL</b>은 표면을 <b>삼각형</b>으로 덮어 표현한다. 단순해서 어느 프로그램에서나 열려 <b>사실상의 표준</b>이 됐다.',
@@ -212,25 +151,7 @@ var LESSON = [
 },
 {
   u:'② 데이터 만들기', t:'3D 모델링 — 스케치에 구속을 걸고 살을 붙인다',
-  svg: svg(520, 235,
-    box(20, 35, 145, 105, '#eff6ff', C.blue) +
-    tx(92, 58, '넙스 (NURBS)', {a:'middle', b:1, size:14, c:C.blue}) +
-    tx(92, 82, '수식으로 정의한 곡면', {a:'middle', size:12}) +
-    tx(92, 103, '확대해도 매끈', {a:'middle', size:12, c:C.green}) +
-    tx(92, 124, '기계·제품 설계', {a:'middle', size:12, c:C.dim}) +
-    box(185, 35, 145, 105, '#fff7ed', C.orange) +
-    tx(257, 58, '폴리곤 (메시)', {a:'middle', b:1, size:14, c:C.orange}) +
-    tx(257, 82, '점을 삼각형으로 이음', {a:'middle', size:12}) +
-    tx(257, 103, '확대하면 각짐', {a:'middle', size:12, c:C.red}) +
-    tx(257, 124, '캐릭터 · 스캔 데이터', {a:'middle', size:12, c:C.dim}) +
-    box(350, 35, 150, 105, '#f0fdf4', C.green) +
-    tx(425, 58, '만드는 순서', {a:'middle', b:1, size:14, c:C.green}) +
-    tx(425, 80, '① 스케치(2D)', {a:'middle', size:12}) +
-    tx(425, 100, '② 구속조건 걸기', {a:'middle', size:12}) +
-    tx(425, 120, '③ 3D 피처 적용', {a:'middle', size:12}) +
-    tx(260, 175, '돌출(Extrude) · 회전(Revolve) · 스윕(Sweep) · 로프트(Loft)', {a:'middle', size:14, b:1}) +
-    tx(260, 205, '구속조건 = 치수·평행·수직·동심 … 을 걸어 “안 흔들리게” 고정하는 것', {a:'middle', size:12.5, c:C.dim}) +
-    tx(260, 228, '치수를 바꾸면 모델 전체가 따라 바뀐다 — 이것이 파라메트릭 설계', {a:'middle', size:12.5, c:C.gold})),
+  svg: FIG.svgOf('poly-nurbs'),   /* figs.js 의 그림 — 배우기 카드와 같은 그림 */
   cap:'같은 모양이라도 곡면을 수식으로 갖고 있느냐, 삼각형으로 근사했느냐가 다르다',
   pts:[
     '<b>넙스(NURBS)</b>는 곡면을 <b>수식</b>으로 갖고 있어 아무리 확대해도 매끈하다. 기계·제품 설계용 CAD가 이 방식이다.',
