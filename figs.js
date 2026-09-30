@@ -622,23 +622,26 @@ var FIGS = (function () {
 
   /* ─────────── ⑪ 후처리 · 회수 ─────────── */
   retrieve: { topics: ['post'], cards: ['출력물 회수 순서', 'SLA 후처리'],
-    cap: '회수는 “멈춘 것 확인”부터 — 레진 출력물은 세척 뒤 후경화까지 해야 끝난다',
+    cap: '출력물 회수 — 보호장구를 먼저 쓰고, 멈춘 것을 확인한 뒤 연다. 레진 출력물은 수지 제거 · 서포터 제거 · 후경화까지 (교안 8장 순서)',
     draw: function () {
-      var s = t(14, 24, '출력물 회수 순서', { b: 1 }), st = ['작동 정지\n확인', '문 개방', '플랫폼\n분리', '출력물\n분리', '정리'];
-      for (var i = 0; i < 5; i++) {
-        var x = 12 + i * 94;
-        s += box(x, 42, 80, 54, { fill: i ? C.grayL : C.redL, c: i ? C.ink : C.red }) + F.num(x + 10, 42, i + 1, { c: i ? C.blue : C.red, r: 10, size: 12 }) +
-          t(x + 40, 70, st[i], { a: 'm', size: 14, b: 1, halo: false, ans: i ? 1 : 0 });
-        if (i < 4) s += arrow(x + 81, 69, x + 93, 69, { w: 1.6, head: 7 });
+      /* 순서는 교안 「3D 프린터 운용기능사 8장」 출력물 회수(고체 방식) · (액체 방식) 을 따랐다 */
+      var s = t(14, 22, '출력물 회수 순서 (고체 방식)', { b: 1 }),
+        st = ['보호장구\n착용', '작동 멈춤\n확인', '문 개방', '플랫폼\n분리', '출력물\n분리', '플랫폼\n재설치', '정리 ·\n대기 상태'];
+      for (var i = 0; i < 7; i++) {
+        var row = i < 4 ? 0 : 1, col = row ? i - 4 : i, x = 12 + col * 116, y = 38 + row * 70, safe = i < 2;
+        s += box(x, y, 100, 52, { fill: safe ? C.redL : C.grayL, c: safe ? C.red : C.ink }) + F.num(x + 10, y, i + 1, { c: safe ? C.red : C.blue, r: 10, size: 12 }) +
+          t(x + 50, y + 27, st[i], { a: 'm', size: 14, b: 1, halo: false, ans: safe ? 0 : 1 });
+        if (col < (row ? 2 : 3)) s += arrow(x + 101, y + 26, x + 115, y + 26, { w: 1.6, head: 7 });
       }
-      s += t(14, 128, 'SLA(레진) 후처리', { b: 1, c: C.purple });
-      var sl = [['출력물', C.grayL, C.ink], ['세척\n(세척제 · 알코올)', C.blueL, C.blue], ['후경화\n(경화기)', C.purpleL, C.purple]];
+      s += F.route([[410, 90], [410, 99], [62, 99], [62, 107]], { w: 1.4, head: 7, c: C.sub });
+      s += t(14, 192, '레진(액체 방식) 출력물은 이어서', { b: 1, c: C.purple });
+      var sl = [['수지 제거\n(세척)', C.blueL, C.blue], ['서포터\n제거', C.grayL, C.ink], ['후경화\n(경화기)', C.purpleL, C.purple]];
       for (var j = 0; j < 3; j++) {
         var x2 = 12 + j * 158;
-        s += box(x2, 144, 138, 56, { fill: sl[j][1], c: sl[j][2] }) + t(x2 + 69, 172, sl[j][0], { a: 'm', size: 14, b: 1, halo: false });
-        if (j < 2) s += arrow(x2 + 140, 172, x2 + 156, 172, { w: 1.6, head: 8 });
+        s += box(x2, 208, 138, 52, { fill: sl[j][1], c: sl[j][2] }) + t(x2 + 69, 234, sl[j][0], { a: 'm', size: 14, b: 1, halo: false, ans: 1 });
+        if (j < 2) s += arrow(x2 + 140, 234, x2 + 156, 234, { w: 1.6, head: 8 });
       }
-      return F.svg(480, 214, s);
+      return F.svg(480, 274, s);
     } },
 
   /* ─────────── ⑫ 안전 · 응급처치 ─────────── */
